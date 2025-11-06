@@ -8,7 +8,7 @@ A full-stack web application that leverages Google's Gemini AI to generate intel
 ![Redis](https://img.shields.io/badge/Redis-5.9.0-red)
 ![AI](https://img.shields.io/badge/AI-Google%20Gemini-orange)
 
-## 📚 Documentation
+<!-- ## 📚 Documentation
 
 - **[Quick Start Guide](docs/QUICK_START.md)** - Get up and running in 10 minutes ⚡
 - **[Docker Setup Guide](docs/DOCKER.md)** - Containerize with Docker & Docker Compose 🐳
@@ -17,9 +17,9 @@ A full-stack web application that leverages Google's Gemini AI to generate intel
 - **[Redis Caching Guide](docs/REDIS_CACHING.md)** - Deep dive into caching strategy 🚀
 - **[Deployment Guide](docs/DEPLOYMENT.md)** - Production deployment instructions 🌐
 - **[Contributing Guidelines](CONTRIBUTING.md)** - How to contribute to the project 🤝
-- **[Changelog](CHANGELOG.md)** - Version history and release notes 📝
+- **[Changelog](CHANGELOG.md)** - Version history and release notes 📝 -->
 
-## 📖 Table of Contents
+<!-- ## 📖 Table of Contents
 
 - [Features](#-features)
 - [Architecture](#-architecture)
@@ -35,7 +35,7 @@ A full-stack web application that leverages Google's Gemini AI to generate intel
 - [Performance Metrics](#-performance-metrics)
 - [Contributing](#-contributing)
 - [License](#-license)
-- [Future Enhancements](#-future-enhancements)
+- [Future Enhancements](#-future-enhancements) -->
 
 ## 🌟 Features
 
@@ -106,7 +106,7 @@ Before you begin, ensure you have the following installed:
 
 You can run this application in two ways:
 
-### Option 1: Docker (Recommended) 🐳
+<!-- ### Option 1: Docker (Recommended) 🐳
 
 **Fastest way to get started!** Docker handles all dependencies automatically.
 
@@ -129,9 +129,10 @@ docker-compose up
 - Development and production configurations
 - Hot reload setup
 - Troubleshooting
-- Advanced configuration
+- Advanced configuration -->
 
-### Option 2: Manual Installation
+<!-- ### Option 2: Manual Installation -->
+### Installation
 
 #### 1. Clone the Repository
 
@@ -149,7 +150,7 @@ cd backend
 npm install
 
 # Create .env file
-cp .env.example .env
+cp .env
 ```
 
 Edit `backend/.env` with your credentials:
@@ -200,31 +201,6 @@ redis-cli ping
 # Should return: PONG
 ```
 
-#### On macOS:
-```bash
-# Install Redis using Homebrew
-brew install redis
-
-# Start Redis
-brew services start redis
-
-# Verify
-redis-cli ping
-```
-
-#### On Linux:
-```bash
-# Install Redis
-sudo apt update
-sudo apt install redis-server
-
-# Start Redis
-sudo systemctl start redis-server
-
-# Verify
-redis-cli ping
-```
-
 #### 5. Start MongoDB
 
 **Local MongoDB:**
@@ -240,7 +216,7 @@ brew services start mongodb-community  # macOS
 
 ## 🎮 Running the Application
 
-### With Docker (Recommended)
+<!-- ### With Docker (Recommended)
 
 ```bash
 # Start all services
@@ -256,7 +232,7 @@ docker-compose logs -f
 docker-compose down
 ```
 
-See [Docker Setup Guide](docs/DOCKER.md) for more commands.
+See [Docker Setup Guide](docs/DOCKER.md) for more commands. -->
 
 ### Manual Setup
 
@@ -527,13 +503,7 @@ foundation/
 ```bash
 cd frontend
 npm run build
-```
 
-This creates an optimized production build in the `dist/` folder.
-
-#### Preview Production Build
-```bash
-npm run preview
 ```
 
 ## 🔍 Redis Caching Strategy
@@ -649,7 +619,7 @@ sudo tail -f /var/log/redis/redis-server.log
 - Get a new key from [Google AI Studio](https://makersuite.google.com/app/apikey)
 - Check API quota limits
 
-### Port Already in Use
+<!-- ### Port Already in Use
 
 **Problem**: `Error: listen EADDRINUSE: address already in use :::8080`
 
@@ -661,7 +631,7 @@ netstat -ano | findstr :8080  # Windows
 
 # Kill the process
 kill -9 <PID>  # macOS/Linux
-taskkill /PID <PID> /F  # Windows
+taskkill /PID <PID> /F  # Windows -->
 ```
 
 ### Cache Not Working
@@ -699,9 +669,6 @@ Contributions are welcome! Please follow these steps:
 4. Push to the branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
-## 📝 License
-
-This project is licensed under the ISC License.
 
 ## 🙏 Acknowledgments
 
@@ -710,24 +677,8 @@ This project is licensed under the ISC License.
 - **MongoDB** for flexible data storage
 - **React** and **Vite** for modern frontend development
 
-## 📧 Support
 
-For issues, questions, or suggestions:
-- Open an issue on GitHub
-- Contact: [your-email@example.com]
 
-## 🔮 Future Enhancements
-
-- [ ] Multiple AI model support (GPT, Claude, etc.)
-- [ ] Summary export (PDF, DOCX)
-- [ ] Summary sharing via unique links
-- [ ] Summary templates (academic, business, etc.)
-- [ ] Batch summarization
-- [ ] Summary analytics and insights
-- [ ] Dark mode
-- [ ] Mobile app (React Native)
-- [ ] Browser extension
-- [ ] API for third-party integrations
 
 ---
 
