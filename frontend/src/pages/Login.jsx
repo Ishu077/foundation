@@ -69,9 +69,9 @@ const Login = ({ onLogin }) => {
 
       localStorage.setItem('token', data.token);
       localStorage.setItem('user-info', JSON.stringify(data.user));
-      if (rememberMe) {
-        localStorage.setItem('rememberMe', 'true');
-      }
+      // if (rememberMe) {
+      //   localStorage.setItem('rememberMe', 'true');
+      // }
       onLogin();
       navigate('/dashboard');
     } catch (err) {
@@ -143,7 +143,7 @@ const Login = ({ onLogin }) => {
               autoComplete="current-password"
             />
 
-            <div className="flex items-center justify-between">
+            {/* <div className="flex items-center justify-between">
               <Checkbox
                 label="Remember me"
                 checked={rememberMe}
@@ -155,7 +155,7 @@ const Login = ({ onLogin }) => {
               >
                 Forgot password?
               </Link>
-            </div>
+            </div> */}
 
             <Button
               type="submit"

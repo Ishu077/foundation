@@ -5,26 +5,19 @@ import mongoose from 'mongoose';
 import express from 'express';
 import cors from 'cors';
 
-import { rateLimit } from 'express-rate-limit'
 import helmet from 'helmet';
 import authroutes from "./routes/user.js";
 import summaryRoutes from "./routes/summary.js";
+import { connectRedis, disconnectRedis } from './config/redis.js';
+import { generalLimiter } from './middlewares/rateLimiter.js';
 
 
 const app = express();
-const limiter = rateLimit({
-    windowMs: 15*60*1000,
-    limit:100,
-    message: 'Too many requests, try again later.',
-    standardHeaders: 'draft-8',
-    legacyHeaders: false,
-    ipv6Subnet: 56,
-});
 
 //security
-app.use(express.urlencoded({ extended: true })); 
+app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-app.use(limiter);
+app.use(generalLimiter); // Redis-backed rate limiter
 app.use(helmet());
 app.use(cors({
     origin: 'http://localhost:5173', //will change
@@ -34,14 +27,26 @@ app.use(cors({
 // read MONGO_URL from environment before calling main()
 const MONGO_URL = process.env.MONGO_URL;
 
-async function main(){
-    await mongoose.connect(MONGO_URL);
+// Initialize database and Redis connections
+async function initializeConnections(){
+    try {
+        // Connect to MongoDB
+        await mongoose.connect(MONGO_URL);
+        console.log("✅ MongoDB: Connected successfully");
+
+        // Connect to Redis
+        await connectRedis();
+    } catch (err) {
+        console.error("❌ Connection Error:", err);
+        throw err;
+    }
 }
 
-main().then(()=>{
-    console.log("connect to db");
+initializeConnections().then(()=>{
+    console.log("✅ All connections initialized");
 }).catch((err)=>{
-    console.log(err);
+    console.error("❌ Failed to initialize connections:", err);
+    process.exit(1);
 });
 app.get("/",(req,res)=>{
     res.send("Hello World");
@@ -56,6 +61,29 @@ app.use((err,req,res,next)=>{
     res.status(500).json({ error: 'Internal server error' });
 });
 
-app.listen(8080,()=>{
-    console.log("server is listening at the port 8080");
+const server = app.listen(8080,()=>{
+    console.log("✅ Server: Listening on port 8080");
+});
+
+// Graceful shutdown
+process.on('SIGTERM', async () => {
+    console.log('⚠️  SIGTERM signal received: closing HTTP server');
+    server.close(async () => {
+        console.log('✅ HTTP server closed');
+        await disconnectRedis();
+        await mongoose.connection.close();
+        console.log('✅ MongoDB connection closed');
+        process.exit(0);
+    });
+});
+
+process.on('SIGINT', async () => {
+    console.log('⚠️  SIGINT signal received: closing HTTP server');
+    server.close(async () => {
+        console.log('✅ HTTP server closed');
+        await disconnectRedis();
+        await mongoose.connection.close();
+        console.log('✅ MongoDB connection closed');
+        process.exit(0);
+    });
 });

@@ -1,6 +1,8 @@
 import Summary from '../models/summary.js';
 import Article from '../models/article.js';
 import summariser from '../helper/summariser.js';
+import { generateCacheKey, setCache, deleteCache, invalidateUserCache } from '../utils/cache.js';
+
 export const createSummary= async (req,res)=>{
     try{
         //make the summary block-->
@@ -23,6 +25,9 @@ export const createSummary= async (req,res)=>{
         });
         await article.save();
 
+        // Invalidate user's summaries cache since we added a new one
+        await invalidateUserCache(req.userId);
+
         res.status(201).json({message:"Summary created successfully", summary, article});
     }
     catch(err){
@@ -31,11 +36,27 @@ export const createSummary= async (req,res)=>{
 }
 
 // Get all summaries for the logged-in user  (may be used to display on the dashboard(need to add the articles too (like a pair of articels and summaries)))
-export const getSummaries = async (req, res) => {
+export const getSummaries = async (req, res) => {  // this is where redis cacheing is used!!
     try {
-        const summaries = await Summary.find({ user: req.userId })
-            .populate('user', 'username email')
-            .sort({ createdAt: -1 });
+        // Generate cache key for user's summaries list
+        const cacheKey = generateCacheKey('summaries', req.userId);
+
+        console.log(req.userId);
+        // Try to get from cache first
+        const { getCache, cacheWrapper } = await import('../utils/cache.js');
+
+        const summaries = await cacheWrapper(
+            cacheKey,
+            async () => {
+                console.log('📊 Fetching summaries from database...');
+                return await Summary.find({ user: req.userId })
+                    .populate('user', 'username email')
+                    .sort({ createdAt: -1 });
+            },
+            // Cache for 5 minutes (300 seconds)
+            // Shorter TTL since summaries list changes frequently
+            300
+        );
 
         res.status(200).json(summaries);
     } catch (err) {
@@ -65,7 +86,7 @@ export const getSummaryById = async (req, res) => {
     }
 }
 
-// Update a summary
+// Update a summary--not used 
 export const updateSummary = async (req, res) => {
     try {
         const { id } = req.params;
@@ -88,6 +109,10 @@ export const updateSummary = async (req, res) => {
         summary.updatedAt = Date.now();
 
         await summary.save();
+
+        // Invalidate user's cache after update
+        await invalidateUserCache(req.userId);
+
         res.status(200).json({ message: 'Summary updated successfully', summary });
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -114,7 +139,7 @@ export const regenerateSummary = async (req, res) => {
             return res.status(403).json({ error: 'Not authorized to regenerate this summary' });
         }
 
-        // Generate new summary using AI
+        //   Generate new summary using AI ( not implemented yet -will use cache if same text was summarized before)   
         let newSummaryText = await summariser(summaryText);
 
         // Update the summary with new generated text
@@ -131,6 +156,9 @@ export const regenerateSummary = async (req, res) => {
             await article.save();
         }
 
+        // Invalidate user's cache after regeneration
+        await invalidateUserCache(req.userId);
+
         res.status(200).json({ message: 'Summary regenerated successfully', summary });
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -142,8 +170,8 @@ export const deleteSummary = async (req, res) => {
     try {
         const { id } = req.params;
 
-        const summary = await Summary.findById(id);   
-        
+        const summary = await Summary.findById(id);
+
         const article = await Article.findOne({ summary: id });
 
         if (!summary) {
@@ -158,6 +186,9 @@ export const deleteSummary = async (req, res) => {
         //find the article with which it is attached too and delete that too
         await Article.findByIdAndDelete(summary._id);
         await Summary.findByIdAndDelete(id);
+
+        // Invalidate user's cache after deletion
+        await invalidateUserCache(req.userId);
 
         res.status(200).json({ message: 'Summary deleted successfully' });
     } catch (err) {
