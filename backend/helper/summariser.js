@@ -10,8 +10,6 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 /**
  * Generate summary using Gemini AI with Redis caching
  * Caches summaries based on input text hash to avoid redundant API calls
- * @param {string} text - Text to summarize
- * @returns {Promise<string>} - Generated summary
  */
 const summariser = async (text) => {
   try {
@@ -35,12 +33,12 @@ const summariser = async (text) => {
         }
 
         const prompt = `Summarize the following text clearly and concisely.
-Preserve only the key ideas and critical information.
-Do not add your own opinions or details.
-Output should be in 3 to 5 bullet points.
+            Preserve only the key ideas and critical information.
+            Do not add your own opinions or details.
+            Output should be in 3 to 5 bullet points.
 
-Text:
-${text}`;
+            Text:
+            ${text}`;
 
         const result = await model.generateContent(prompt);
         const response = result.response;
@@ -50,7 +48,7 @@ ${text}`;
         return generatedSummary;
       },
       // Cache for 7 days (604800 seconds)
-      // AI summaries for the same text won't change, so long TTL is appropriate
+      // AI summaries for the same text won't change, thus long TTL 
       604800
     );
 

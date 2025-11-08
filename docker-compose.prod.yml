@@ -1,0 +1,133 @@
+services:
+  # ============================================
+  # MongoDB Database Service
+  # ============================================
+  mongodb:
+    image: mongo:7.0
+    container_name: summarizer-mongodb-prod
+    restart: always
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_DATABASE: text-summarizer
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USERNAME:-admin}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD}
+    volumes:
+      - mongodb_data:/data/db
+      - mongodb_config:/data/configdb
+    networks:
+      - summarizer-network
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/text-summarizer --quiet
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
+
+  # ============================================
+  # Redis Cache Service
+  # ============================================
+  redis:
+    image: redis:7-alpine
+    container_name: summarizer-redis-prod
+    restart: always
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD}
+    volumes:
+      - redis_data:/data
+    networks:
+      - summarizer-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  # ============================================
+  # Backend API Service
+  # ============================================
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      target: production
+    container_name: summarizer-backend-prod
+    restart: always
+    ports:
+      - "8080:8080"
+    environment:
+      # MongoDB connection with authentication
+      MONGO_URL: mongodb://${MONGO_ROOT_USERNAME:-admin}:${MONGO_ROOT_PASSWORD}@mongodb:27017/text-summarizer?authSource=admin
+      
+      # Redis connection with password
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      
+      # JWT Secret (MUST be set in production!)
+      JWT_SECRET: ${JWT_SECRET}
+      
+      # Google Gemini AI API Key
+      GEMINI_API_KEY: ${GEMINI_API_KEY}
+      
+      # Server configuration
+      PORT: 8080
+      NODE_ENV: production
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - summarizer-network
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:8080/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # ============================================
+  # Frontend Web Service (Node.js static server)
+  # ============================================
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      target: production
+    container_name: summarizer-frontend-prod
+    restart: always
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+    networks:
+      - summarizer-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:5173/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
+
+# ============================================
+# Networks
+# ============================================
+networks:
+  summarizer-network:
+    driver: bridge
+    name: summarizer-network-prod
+
+# ============================================
+# Volumes
+# ============================================
+volumes:
+  mongodb_data:
+    name: summarizer-mongodb-data-prod
+  mongodb_config:
+    name: summarizer-mongodb-config-prod
+  redis_data:
+    name: summarizer-redis-data-prod
+

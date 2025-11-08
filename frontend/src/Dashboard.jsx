@@ -97,7 +97,7 @@ const Dashboard = ({ onLogout }) => {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || 'Failed to regenerate summary');
+        throw new Error(data.error || data.message || 'Failed to regenerate summary');
       }
 
       setSummary(data.summary?.summaryText || 'No summary available');

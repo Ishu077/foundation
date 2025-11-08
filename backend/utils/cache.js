@@ -1,17 +1,16 @@
+//redis caching utility module-->
+
 import { redisClient, isRedisAvailable } from '../config/redis.js';
 import crypto from 'crypto';
 
-/**
- * Cache utility functions for Redis operations
- * All functions gracefully handle Redis unavailability
- */
-
+//  cases for handling why the redis unavailable case and printing in the temrinal of vascode for error
 /**
  * Generate a cache key with optional prefix
  * @param {string} prefix - Cache key prefix (e.g., 'summary', 'user')
  * @param {string|object} identifier - Unique identifier or object to hash
  * @returns {string} - Generated cache key
  */
+
 export const generateCacheKey = (prefix, identifier) => {
   if (typeof identifier === 'object') {
     // Create a hash for object identifiers (useful for caching based on content)
@@ -112,7 +111,7 @@ export const deleteCachePattern = async (pattern) => {
       return 0;
     }
 
-    await redisClient.del(keys);
+    await redisClient.del(keys);   //from dcumentation!
     console.log(`✅ Cache DELETE PATTERN: ${pattern} (${keys.length} keys)`);
     return keys.length;
   } catch (error) {
@@ -183,7 +182,7 @@ export const incrementCache = async (key, increment = 1) => {
  * Cache wrapper function - get from cache or execute function and cache result
  * @param {string} key - Cache key
  * @param {Function} fn - Async function to execute if cache miss
- * @param {number} ttl - Time to live in seconds
+ * @param {number} ttl -   Time to live in seconds
  * @returns {Promise<any>} - Cached or fresh data
  */
 export const cacheWrapper = async (key, fn, ttl = 3600) => {

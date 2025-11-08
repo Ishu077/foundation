@@ -52,6 +52,21 @@ app.get("/",(req,res)=>{
     res.send("Hello World");
 })
 
+// Health check endpoint for Docker and monitoring
+app.get("/health", (req, res) => {
+    const healthStatus = {
+        status: 'ok',
+        timestamp: new Date().toISOString(),
+        uptime: process.uptime(),
+        mongodb: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected',
+        redis: 'connected' // Redis connection is checked during initialization
+    };
+
+    // Return 200 if MongoDB is connected, 503 otherwise
+    const statusCode = mongoose.connection.readyState === 1 ? 200 : 503;
+    res.status(statusCode).json(healthStatus);
+});
+
 app.use("/auth",authroutes);  //  /auth/signup and /auth/login
 app.use("/summaries", summaryRoutes);  // /summaries CRUD routes
 

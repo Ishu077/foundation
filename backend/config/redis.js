@@ -1,13 +1,13 @@
 import { createClient } from 'redis';
-import dotenv from 'dotenv';
+// import dotenv from 'dotenv';
 
-dotenv.config();
+// dotenv.config();
 
 // Create Redis client with configuration
 const redisClient = createClient({
-  url: process.env.REDIS_URL || 'redis://localhost:6379',
+  url: process.env.REDIS_URL || `redis://${process.env.REDIS_HOST || 'localhost'}:${process.env.REDIS_PORT || 6379}`,  // for the time being it is running locally
   socket: {
-    reconnectStrategy: (retries) => {
+    reconnectStrategy: (retries) => {  //stratergy to reconnect
       if (retries > 10) {
         console.error('Redis: Too many reconnection attempts. Giving up.');
         return new Error('Redis reconnection failed');
@@ -20,7 +20,7 @@ const redisClient = createClient({
     connectTimeout: 10000, // 10 seconds
   },
   // Gracefully handle errors
-  legacyMode: false,
+  legacyMode: false,  // donefor better better performance  and compatibility with nre redis feature
 });
 
 // Event handlers for Redis connection

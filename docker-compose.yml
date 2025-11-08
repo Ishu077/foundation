@@ -1,0 +1,139 @@
+services:
+  # ============================================
+  # MongoDB Database Service
+  # ============================================
+  mongodb:
+    image: mongo:7.0
+    container_name: summarizer-mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_DATABASE: text-summarizer
+    volumes:
+      - mongodb_data:/data/db
+      - mongodb_config:/data/configdb
+    networks:
+      - summarizer-network
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/text-summarizer --quiet
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
+
+  # ============================================
+  # Redis Cache Service
+  # ============================================
+  redis:
+    image: redis:7-alpine
+    container_name: summarizer-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    networks:
+      - summarizer-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 60s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  # ============================================
+  # Backend API Service
+  # ============================================
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      target: development
+    container_name: summarizer-backend
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      # MongoDB connection (using service name as hostname)
+      # MONGO_URL: mongodb://mongodb:27017/text-summarizer
+      MONGO_URL: ${MONGO_URL}
+      # Redis connection (using service name as hostname)
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      
+      # JWT Secret (change in production!)
+      JWT_SECRET: ${JWT_SECRET:-dev_jwt_secret_change_in_production}
+      
+      # Google Gemini AI API Key
+      GEMINI_API_KEY: ${GEMINI_API_KEY}
+      
+      # Server configuration
+      PORT: 8080
+      NODE_ENV: development
+    volumes:
+      # Mount source code for hot reload
+      - ./backend:/app
+      # Prevent node_modules from being overwritten
+      - /app/node_modules
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - summarizer-network
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:8080/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # ============================================
+  # Frontend Web Service
+  # ============================================
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      target: development
+    container_name: summarizer-frontend
+    restart: unless-stopped
+    ports:
+      - "5173:5173"
+    environment:
+      # Vite uses VITE_ prefix for env variables
+      VITE_API_URL: http://localhost:8080
+    volumes:
+      # Mount source code for hot reload
+      - ./frontend:/app
+      # Prevent node_modules from being overwritten
+      - /app/node_modules
+    depends_on:
+      - backend
+    networks:
+      - summarizer-network
+    stdin_open: true
+    tty: true
+
+# ============================================
+# Networks
+# ============================================
+networks:
+  summarizer-network:
+    driver: bridge
+    name: summarizer-network
+
+# ============================================
+# Volumes
+# ============================================
+volumes:
+  mongodb_data:
+    name: summarizer-mongodb-data
+  mongodb_config:
+    name: summarizer-mongodb-config
+  redis_data:
+    name: summarizer-redis-data
+

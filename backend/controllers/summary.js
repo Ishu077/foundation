@@ -139,7 +139,12 @@ export const regenerateSummary = async (req, res) => {
             return res.status(403).json({ error: 'Not authorized to regenerate this summary' });
         }
 
-        //   Generate new summary using AI ( not implemented yet -will use cache if same text was summarized before)   
+        // Delete the cached summary to force regeneration (bypass cache)
+        const cacheKey = generateCacheKey('ai-summary', summaryText);
+        await deleteCache(cacheKey);
+        console.log(`🔄 Regenerating summary - cache cleared for key: ${cacheKey}`);
+
+        // Generate new summary using AI (will be a fresh API call since cache was deleted)
         let newSummaryText = await summariser(summaryText);
 
         // Update the summary with new generated text
