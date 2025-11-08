@@ -1,3 +1,5 @@
+#  this file is for(Local development)
+
 services:
   # ============================================
   # MongoDB Database Service
@@ -62,16 +64,18 @@ services:
       # Redis connection (using service name as hostname)
       REDIS_HOST: redis
       REDIS_PORT: 6379
-      
+      REDIS_PASSWORD: ""  # Empty password for local development
+
       # JWT Secret (change in production!)
       JWT_SECRET: ${JWT_SECRET:-dev_jwt_secret_change_in_production}
-      
+
       # Google Gemini AI API Key
       GEMINI_API_KEY: ${GEMINI_API_KEY}
-      
+
       # Server configuration
       PORT: 8080
       NODE_ENV: development
+      DOCKER_ENV: "true"  # Tell backend it's running in Docker
     volumes:
       # Mount source code for hot reload
       - ./backend:/app

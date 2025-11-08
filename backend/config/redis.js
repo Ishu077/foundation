@@ -1,11 +1,25 @@
 import { createClient } from 'redis';
-// import dotenv from 'dotenv';
+import dotenv from 'dotenv';
 
-// dotenv.config();
+// Only load .env if not in Docker
+if (process.env.NODE_ENV !== 'production' && !process.env.DOCKER_ENV) {
+  dotenv.config();
+}
+
+// Build Redis URL based on environment
+let redisUrl;
+
+if (process.env.REDIS_PASSWORD) {
+  // Production: with password
+  redisUrl = `redis://:${process.env.REDIS_PASSWORD}@${process.env.REDIS_HOST || 'localhost'}:${process.env.REDIS_PORT || 6379}`;
+} else {
+  // Local development: without password
+  redisUrl = `redis://${process.env.REDIS_HOST || 'localhost'}:${process.env.REDIS_PORT || 6379}`;
+}
 
 // Create Redis client with configuration
 const redisClient = createClient({
-  url: process.env.REDIS_URL || `redis://${process.env.REDIS_HOST || 'localhost'}:${process.env.REDIS_PORT || 6379}`,  // for the time being it is running locally
+  url: process.env.REDIS_URL || redisUrl,
   socket: {
     reconnectStrategy: (retries) => {  //stratergy to reconnect
       if (retries > 10) {
