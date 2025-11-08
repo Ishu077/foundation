@@ -9,13 +9,13 @@ FROM node:20-alpine AS development
 WORKDIR /app
 
 # Copy package files
-COPY package*.json ./
+COPY backend/package*.json ./
 
 # Install all dependencies (including devDependencies)
 RUN npm ci
 
 # Copy application code
-COPY . .
+COPY backend/ .
 
 # Expose port
 EXPOSE 8080
@@ -27,12 +27,12 @@ CMD ["npx", "nodemon", "server.js"]
 # ============================================
 # Stage 2: Production Dependencies
 # ============================================
-FROM node:18-alpine AS dependencies
+FROM node:20-alpine AS dependencies
 
 WORKDIR /app
 
 # Copy package files
-COPY package*.json ./
+COPY backend/package*.json ./
 
 # Install only production dependencies
 RUN npm ci --only=production
@@ -41,7 +41,7 @@ RUN npm ci --only=production
 # ============================================
 # Stage 3: Production
 # ============================================
-FROM node:18-alpine AS production
+FROM node:20-alpine AS production
 
 # Set NODE_ENV to production
 ENV NODE_ENV=production
@@ -53,7 +53,7 @@ WORKDIR /app
 COPY --from=dependencies /app/node_modules ./node_modules
 
 # Copy application code
-COPY . .
+COPY backend/ .
 
 # Create a non-root user for security
 RUN addgroup -g 1001 -S nodejs && \

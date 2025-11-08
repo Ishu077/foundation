@@ -9,13 +9,13 @@ FROM node:20-alpine AS development
 WORKDIR /app
 
 # Copy package files
-COPY package*.json ./
+COPY frontend/package*.json ./
 
 # Install all dependencies
 RUN npm ci
 
 # Copy application code
-COPY . .
+COPY frontend/ .
 
 # Expose Vite dev server port
 EXPOSE 5173
@@ -28,18 +28,18 @@ CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
 # ============================================
 # Stage 2: Build
 # ============================================
-FROM node:18-alpine AS build
+FROM node:20-alpine AS build
 
 WORKDIR /app
 
 # Copy package files
-COPY package*.json ./
+COPY frontend/package*.json ./
 
 # Install dependencies
 RUN npm ci
 
 # Copy application code
-COPY . .
+COPY frontend/ .
 
 # Build the application
 RUN npm run build
@@ -48,7 +48,7 @@ RUN npm run build
 # ============================================
 # Stage 3: Production (Node.js static server)
 # ============================================
-FROM node:18-alpine AS production
+FROM node:20-alpine AS production
 
 WORKDIR /app
 
@@ -56,7 +56,7 @@ WORKDIR /app
 RUN npm install -g serve
 
 # Copy built files from build stage
-COPY --from=build /app/dist /app/dist
+COPY --from=build /app/dist ./dist
 
 # Expose port 5173 (same as dev for consistency)
 EXPOSE 5173
