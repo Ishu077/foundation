@@ -49,7 +49,7 @@ Then read: [README.md - Features](README.md#-features)
 - Get up and running quickly
 - Local development setup
 
-Then read: [README.md - Architecture](README.md#-architecture)
+Then read: [README.md - Architecture + ARCHITECTURE.md](README.md#-architecture) (ARCHITECTURE.md#-architecture)
 - Understand the project structure
 - Learn about components
 
@@ -71,11 +71,7 @@ Then read: [README.md - Architecture](README.md#-architecture)
 | [QUICK_START_GUIDE.md](QUICK_START_GUIDE.md) | Quick reference | 5 min |
 | [DEPLOYMENT_CHECKLIST.md](DEPLOYMENT_CHECKLIST.md) | Deployment guide | 10 min |
 | [DOCUMENTATION_INDEX.md](DOCUMENTATION_INDEX.md) | Navigation guide | 5 min |
-| [README_UPDATES_SUMMARY.md](README_UPDATES_SUMMARY.md) | What changed | 5 min |
-| [DOCUMENTATION_UPDATES.md](DOCUMENTATION_UPDATES.md) | Meta documentation | 5 min |
 | [DOCUMENTATION_STRUCTURE.md](DOCUMENTATION_STRUCTURE.md) | Doc hierarchy | 5 min |
-| [FINAL_SUMMARY.md](FINAL_SUMMARY.md) | Project summary | 5 min |
-| [COMPLETION_CHECKLIST.md](COMPLETION_CHECKLIST.md) | Completion status | 5 min |
 
 ---
 
