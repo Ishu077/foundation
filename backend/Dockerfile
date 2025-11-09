@@ -72,6 +72,10 @@ EXPOSE 8080
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
   CMD node -e "require('http').get('http://localhost:8080/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"
 
+# Note: Runtime environment variables (FRONTEND_URL, MONGO_URL, JWT_SECRET, etc.)
+# should be set in the deployment platform (Render, Docker Compose, etc.)
+# They are read by the application at runtime, not during build
+
 # Start production server
 CMD ["node", "server.js"]
 

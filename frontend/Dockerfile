@@ -41,8 +41,11 @@ RUN npm ci
 # Copy application code
 COPY frontend/ .
 
-# Build the application
-RUN npm run build
+# Accept VITE_API_URL as build argument
+ARG VITE_API_URL=http://localhost:8080
+
+# Build the application with VITE_API_URL
+RUN VITE_API_URL=$VITE_API_URL npm run build
 
 
 # ============================================
@@ -63,7 +66,7 @@ EXPOSE 5173
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-  CMD wget --quiet --tries=1 --spider http://localhost:5173/ || exit 1
+  CMD wget --quiet --tries=1 --spider http://localhos?t:5173/ || exit 1
 
 # Serve the built application
 CMD ["serve", "-s", "dist", "-l", "5173"]
