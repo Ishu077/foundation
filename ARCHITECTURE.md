@@ -65,21 +65,40 @@ This document provides a detailed overview of the AI Text Summarization applicat
 
 ### Frontend Components
 
-```
+```diff
 frontend/
+├── public/                      # Static public assets
 ├── src/
-│   ├── main.jsx                 # Application entry point
-│   ├── App.jsx                  # Router configuration
-│   ├── Dashboard.jsx            # Main dashboard (summary generation)
-│   ├── pages/
-│   │   ├── Login.jsx           # Login page
-│   │   ├── Signup.jsx          # Signup page
-│   │   └── Pagenotfound.jsx    # 404 page
-│   ├── components/
-│   │   ├── Button.jsx          # Reusable button component
-│   │   ├── Input.jsx           # Reusable input component
-│   │   └── Card.jsx            # Reusable card component
-│   └── RefreshHandler.jsx      # Token refresh handler
+│   ├── App.jsx                  # Main app component (routing)
+│   ├── Dashboard.jsx            # Dashboard page
+│   ├── Pagenotfound.jsx         # 404 page
+│   ├── RefreshHandler.jsx       # Handles refresh logic
+│   ├── index.css                # Global CSS
+│   ├── App.css                  # App-specific CSS
+│   ├── main.jsx                 # Entry point
+│   ├── assets/                  # Images and other static assets
+│   ├── components/              # Reusable UI components
+│   │   ├── Alert.jsx
+│   │   ├── Button.jsx
+│   │   ├── Card.jsx
+│   │   ├── Checkbox.jsx
+│   │   ├── Header.jsx
+│   │   ├── Input.jsx
+│   │   ├── Textarea.jsx
+│   │   └── index.js             # Components barrel file
+│   ├── config/
+│   │   └── api.js               # API endpoint config
+│   ├── pages/                   # Main pages
+│   │   ├── History.jsx          # History page
+│   │   ├── Login.jsx            # Login page
+│   │   └── Signup.jsx           # Signup page
+│   └── ...                      # (Other files as needed)
+├── index.html                   # HTML template
+├── package.json                 # Project dependencies
+├── tailwind.config.js           # Tailwind CSS config
+├── postcss.config.js            # PostCSS config
+├── vite.config.js               # Vite config
+└── ...                          # (Other config and dotfiles)
 ```
 
 ### Backend Components
@@ -496,4 +515,3 @@ Request → CORS → Helmet → Rate Limiter → Body Parser → Route Handler
 - [API Documentation](./API.md)
 - [Redis Caching Guide](./REDIS_CACHING.md)
 - [Deployment Guide](./DEPLOYMENT.md)
-
