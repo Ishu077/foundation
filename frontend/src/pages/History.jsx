@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button, Card, Alert, Header } from '../components';
+import API_URL from '../config/api';
 
 const History = ({ onLogout }) => {
   const [summaries, setSummaries] = useState([]);
@@ -13,7 +14,7 @@ const History = ({ onLogout }) => {
 
   const fetchSummaries = async () => {
     try {
-      const response = await fetch('http://localhost:8080/summaries', {
+      const response = await fetch(`${API_URL}/summaries`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -40,7 +41,7 @@ const History = ({ onLogout }) => {
     if (!window.confirm('Are you sure you want to delete this summary?')) return;
 
     try {
-      const response = await fetch(`http://localhost:8080/summaries/${id}`, {
+      const response = await fetch(`${API_URL}/summaries/${id}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`

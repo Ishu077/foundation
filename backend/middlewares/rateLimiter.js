@@ -5,7 +5,6 @@ import { redisClient, isRedisAvailable } from '../config/redis.js';
 
 /**
  * Create rate limiter with Redis store (falls back to memory if Redis unavailable)
-
  */
 
 export const createRateLimiter = (options = {}) => {

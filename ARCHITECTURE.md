@@ -304,9 +304,6 @@ backend/
 }
 ```
 
-**Indexes:**
-- `email`: Unique index for fast lookup
-
 ### Summary Collection
 
 ```javascript
@@ -320,10 +317,6 @@ backend/
   updatedAt: Date         // Last update timestamp
 }
 ```
-
-**Indexes:**
-- `user`: Index for user's summaries lookup
-- `createdAt`: Index for sorting by date
 
 ### Article Collection
 

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button, Input, Textarea, Alert, Card, Header } from './components';
+import API_URL from './config/api';
 
 const Dashboard = ({ onLogout }) => {
   const [title, setTitle] = useState('');
@@ -46,7 +47,7 @@ const Dashboard = ({ onLogout }) => {
     setErrors({});
 
     try {
-      const response = await fetch('http://localhost:8080/summaries', {
+      const response = await fetch(`${API_URL}/summaries`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
